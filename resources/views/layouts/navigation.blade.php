@@ -16,6 +16,14 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
+                <x-nav-link :href="route('home')" :active="request()->routeIs('home')">
+                {{ __('🍽️ Carte') }}
+                </x-nav-link>
+
+                <x-nav-link :href="route('order.history')" :active="request()->routeIs('order.history')">
+                {{ __('📜 Mes commandes') }}
+                </x-nav-link>
+
             </div>
 
             <!-- Settings Dropdown -->
