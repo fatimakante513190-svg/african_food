@@ -62,4 +62,31 @@ $orders = Order::with('items.product')
 
 return view('orders.history', compact('orders'));
 }
+
+// Vue staff : toutes les commandes
+public function staffIndex()
+{
+    // Récupère toutes les commandes avec les relations
+    $orders = Order::with(['items.product', 'user'])
+                   ->orderBy('created_at', 'desc')
+                   ->get();
+   
+    return view('staff.orders', compact('orders'));
+}
+
+// Changer le statut d'une commande
+public function updateStatus($id, Request $request)
+{
+    $request->validate([
+        'status' => 'required|in:en_attente,preparation,servi'
+    ]);
+   
+    $order = Order::findOrFail($id);
+    $order->status = $request->status;
+    $order->save();
+   
+    return back()->with('success', 'Statut de la commande mis à jour');
+}
+
+
 }
