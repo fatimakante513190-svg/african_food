@@ -22,6 +22,13 @@
 
                 <x-nav-link :href="route('order.history')" :active="request()->routeIs('order.history')">
                 {{ __('📜 Mes commandes') }}
+                    @auth
+                        @if(auth()->user()->isAdmin() || auth()->user()->isServeur())
+                            <x-nav-link :href="route('staff.orders')" :active="request()->routeIs('staff.orders')">
+                                {{ __('👨‍🍳 Gestion commandes') }}
+                            </x-nav-link>
+                        @endif
+                    @endauth
                 </x-nav-link>
 
             </div>

@@ -20,6 +20,10 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/commander', [App\Http\Controllers\OrderController::class, 'store'])->name('order.store');
     Route::get('/mes-commandes', [App\Http\Controllers\OrderController::class, 'history'])->name('order.history');
+
+    // Routes staff (accessible à tous les connectés pour débuter)
+    Route::get('/staff/commandes', [App\Http\Controllers\OrderController::class, 'staffIndex'])->name('staff.orders');
+    Route::put('/staff/commande/{id}/status', [App\Http\Controllers\OrderController::class, 'updateStatus'])->name('staff.update-status');
 });
 
 
