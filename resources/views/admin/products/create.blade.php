@@ -33,6 +33,14 @@
                         </div>
 
                         <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Image du produit</label>
+                            <input type="file" name="image" accept="image/*"
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            <p class="text-xs text-gray-500 mt-1">Formats acceptés : JPG, PNG, GIF (max 2MB)</p>
+                            @error('image') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div class="mb-4">
                             <label class="block text-gray-700 text-sm font-bold mb-2">Prix (€)</label>
                             <input type="number" step="0.01" name="price" value="{{ old('price') }}"
                                    class="shadow appearance-none border rounded w-full py-2 px-3" required>

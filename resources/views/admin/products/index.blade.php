@@ -20,6 +20,7 @@
                     <table class="min-w-full table-auto">
                         <thead>
                             <tr class="bg-gray-100">
+                                <th class="px-4 py-2 text-left">Image</th>
                                 <th class="px-4 py-2 text-left">Nom</th>
                                 <th class="px-4 py-2 text-left">Catégorie</th>
                                 <th class="px-4 py-2 text-left">Prix</th>
@@ -30,6 +31,15 @@
                         <tbody>
                             @foreach($products as $product)
                             <tr class="border-b">
+                                <td class="px-4 py-2">
+                                    @if($product->image)
+                                        <img src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}" class="h-12 w-12 object-cover rounded">
+                                    @else
+                                        <div class="h-12 w-12 bg-gray-200 rounded flex items-center justify-center">
+                                            <span class="text-gray-400 text-xs">Pas d'image</span>
+                                        </div>
+                                    @endif
+                                </td>
                                 <td class="px-4 py-2">{{ $product->name }}</td>
                                 <td class="px-4 py-2">{{ $product->category->name }}</td>
                                 <td class="px-4 py-2">{{ $product->price }} €</td>

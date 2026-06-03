@@ -33,6 +33,23 @@
                         </div>
 
                         <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Image actuelle</label>
+                            @if($product->image)
+                                <div class="mb-2">
+                                    <img src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}" class="h-32 w-auto object-cover rounded">
+                                </div>
+                            @else
+                                <p class="text-gray-500 text-sm mb-2">Aucune image</p>
+                            @endif
+                            
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Changer l'image</label>
+                            <input type="file" name="image" accept="image/*"
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            <p class="text-xs text-gray-500 mt-1">Formats acceptés : JPG, PNG, GIF (max 2MB)</p>
+                            @error('image') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div class="mb-4">
                             <label class="block text-gray-700 text-sm font-bold mb-2">Prix (€)</label>
                             <input type="number" step="0.01" name="price" value="{{ old('price', $product->price) }}" required>
                         </div>

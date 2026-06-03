@@ -2,59 +2,84 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProfileUpdateRequest;
-use Illuminate\Http\RedirectResponse;
+use App\Models\Order;
+use App\Models\Product;
+use App\Models\OrderItem;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
+use Illuminate\Support\Facades\DB;
 
-class ProfileController extends Controller
+class OrderController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
-    public function edit(Request $request): View
+    public function store(Request $request)
     {
-        return view('profile.edit', [
-            'user' => $request->user(),
+        $request->validate([
+            'table_number' => 'required|integer',
+            'items' => 'required|array',
+            'items.*.product_id' => 'exists:products,id',
+            'items.*.quantity' => 'integer|min:1'
         ]);
-    }
-
-    /**
-     * Update the user's profile information.
-     */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
-    {
-        $request->user()->fill($request->validated());
-
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        
+        $total = 0;
+        $itemsData = [];
+        
+        // Calcul du total
+        foreach ($request->items as $item) {
+            $product = Product::find($item['product_id']);
+            $itemTotal = $product->price * $item['quantity'];
+            $total += $itemTotal;
+            $itemsData[] = [
+                'product_id' => $product->id,
+                'quantity' => $item['quantity'],
+                'unit_price' => $product->price
+            ];
         }
-
-        $request->user()->save();
-
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        
+        // Création de la commande dans une transaction
+        DB::transaction(function () use ($request, $total, $itemsData) {
+            $order = Order::create([
+                'user_id' => auth()->id(),
+                'status' => 'en_attente',
+                'total' => $total,
+                'table_number' => $request->table_number
+            ]);
+            
+            foreach ($itemsData as $item) {
+                $order->items()->create($item);
+            }
+        });
+        
+        return redirect()->route('order.history')->with('success', 'Commande envoyée à la cuisine !');
     }
-
-    /**
-     * Delete the user's account.
-     */
-    public function destroy(Request $request): RedirectResponse
+    
+    public function history()
     {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
+        $orders = Order::with('items.product')
+                       ->where('user_id', auth()->id())
+                       ->orderBy('created_at', 'desc')
+                       ->get();
+        
+        return view('orders.history', compact('orders'));
+    }
+    
+    public function staffIndex()
+    {
+        $orders = Order::with(['items.product', 'user'])
+                       ->orderBy('created_at', 'desc')
+                       ->get();
+        
+        return view('staff.orders', compact('orders'));
+    }
+    
+    public function updateStatus($id, Request $request)
+    {
+        $request->validate([
+            'status' => 'required|in:en_attente,preparation,servi'
         ]);
-
-        $user = $request->user();
-
-        Auth::logout();
-
-        $user->delete();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return Redirect::to('/');
+        
+        $order = Order::findOrFind($id);
+        $order->status = $request->status;
+        $order->save();
+        
+        return back()->with('success', 'Statut de la commande mis à jour');
     }
 }
