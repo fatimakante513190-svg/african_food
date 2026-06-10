@@ -30,24 +30,29 @@ class User extends Authenticatable
         ];
     }
 
-    // AJOUTE CES 4 MÉTHODES
     public function role()
     {
         return $this->belongsTo(Role::class);
     }
 
+    // VERSIONS SÉCURISÉES (avec vérification si role existe)
     public function isAdmin()
     {
-        return $this->role->name === 'admin';
+        return $this->role && $this->role->name === 'admin';
     }
 
     public function isServeur()
     {
-        return $this->role->name === 'serveur';
+        return $this->role && $this->role->name === 'serveur';
     }
 
     public function isCuisine()
     {
-        return $this->role->name === 'cuisine';
+        return $this->role && $this->role->name === 'cuisine';
+    }
+    
+    public function isClient()
+    {
+        return !$this->role || $this->role->name === 'client';
     }
 }
